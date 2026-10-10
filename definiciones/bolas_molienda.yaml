@@ -1,0 +1,49 @@
+id: bolas_molienda
+nombre: Fabricación de bolas de molienda fundidas
+documentacion: >
+  Procedimiento genérico e ilustrativo de la fabricación de bolas de molienda de fundición:
+  fusión, colada, tratamiento térmico y control de calidad. No es el procedimiento de una empresa:
+  las especificaciones de química, dureza y ensayo de caída las fija cada fabricante y cliente.
+carriles:
+  - Fusión
+  - Moldeo y colada
+  - Tratamiento térmico
+  - Control de calidad
+  - Despacho
+nodos:
+  - {id: inicio, tipo: inicio, nombre: Orden de producción, carril: Fusión}
+  - {id: carga, tipo: tarea_manual, nombre: "Preparar carga: chatarra y ferroaleaciones", carril: Fusión}
+  - {id: fundir, tipo: tarea_manual, nombre: Fundir en horno de inducción, carril: Fusión}
+  - {id: espectro, tipo: tarea, nombre: Análisis por espectrometría de emisión, carril: Control de calidad}
+  - {id: g_quimica, tipo: decision, nombre: "¿Química en especificación?", carril: Control de calidad}
+  - {id: corregir, tipo: tarea_manual, nombre: Corregir con ferroaleaciones, carril: Fusión}
+  - {id: colar, tipo: tarea_manual, nombre: Colar en moldes, carril: Moldeo y colada}
+  - {id: desmoldar, tipo: tarea_manual, nombre: Desmoldar y limpiar, carril: Moldeo y colada}
+  - {id: temple, tipo: tarea_manual, nombre: Templar y revenir, carril: Tratamiento térmico}
+  - {id: dureza, tipo: tarea, nombre: Medir dureza en superficie y núcleo, carril: Control de calidad}
+  - {id: g_dureza, tipo: decision, nombre: "¿Dureza en especificación?", carril: Control de calidad}
+  - {id: g_retratar, tipo: decision, nombre: "¿Se puede volver a tratar?", carril: Tratamiento térmico}
+  - {id: rechazo, tipo: tarea_manual, nombre: Devolver como chatarra de retorno, carril: Fusión}
+  - {id: fin_rechazo, tipo: fin, nombre: Lote rechazado, carril: Fusión}
+  - {id: caida, tipo: tarea, nombre: Ensayo de caída por lote, carril: Control de calidad}
+  - {id: despacho, tipo: tarea_manual, nombre: Embalar y despachar, carril: Despacho}
+  - {id: fin, tipo: fin, nombre: Lote despachado, carril: Despacho}
+flujos:
+  - [inicio, carga]
+  - [carga, fundir]
+  - [fundir, espectro]
+  - [espectro, g_quimica]
+  - [g_quimica, corregir, "No"]
+  - [corregir, espectro]
+  - [g_quimica, colar, "Sí"]
+  - [colar, desmoldar]
+  - [desmoldar, temple]
+  - [temple, dureza]
+  - [dureza, g_dureza]
+  - [g_dureza, caida, "Sí"]
+  - [g_dureza, g_retratar, "No"]
+  - [g_retratar, temple, "Sí"]
+  - [g_retratar, rechazo, "No"]
+  - [rechazo, fin_rechazo]
+  - [caida, despacho]
+  - [despacho, fin]

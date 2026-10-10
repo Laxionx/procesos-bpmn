@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "procesos-bpmn"
+version = "0.1.0"
+description = "Procedimientos metalúrgicos genéricos modelados en BPMN 2.0 (importables en Bizagi Modeler), generados desde YAML y validados contra el XSD de la OMG"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "Anthony Vera Baldeón" }]
+dependencies = ["pyyaml", "lxml"]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov", "ruff"]
+
+[tool.setuptools]
+packages = ["procesos_bpmn"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.coverage.run]
+source = ["procesos_bpmn"]

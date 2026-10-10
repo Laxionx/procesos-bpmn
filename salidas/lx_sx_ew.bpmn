@@ -1,0 +1,302 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definiciones_lx_sx_ew" targetNamespace="urn:procesos-bpmn:lx_sx_ew" exporter="procesos-bpmn" exporterVersion="0.1.0">
+  <collaboration id="Colab_lx_sx_ew">
+    <participant id="Piscina_lx_sx_ew" name="Control operacional de turno en una planta LX-SX-EW" processRef="Proceso_lx_sx_ew"/>
+  </collaboration>
+  <process id="Proceso_lx_sx_ew" name="Control operacional de turno en una planta LX-SX-EW" isExecutable="false">
+    <documentation>Procedimiento genérico e ilustrativo del control de un turno en una planta de lixiviación, extracción por solventes y electroobtención de cobre. No es el procedimiento de una empresa: los rangos de control los fija cada planta.</documentation>
+    <laneSet id="Carriles_lx_sx_ew">
+      <lane id="Carril_1" name="Supervisor de turno">
+        <flowNodeRef>inicio</flowNodeRef>
+        <flowNodeRef>entrega</flowNodeRef>
+        <flowNodeRef>segregar</flowNodeRef>
+        <flowNodeRef>registro</flowNodeRef>
+        <flowNodeRef>fin</flowNodeRef>
+      </lane>
+      <lane id="Carril_2" name="Operador de lixiviación">
+        <flowNodeRef>riego</flowNodeRef>
+        <flowNodeRef>muestras</flowNodeRef>
+      </lane>
+      <lane id="Carril_3" name="Operador de SX">
+        <flowNodeRef>g_refino</flowNodeRef>
+        <flowNodeRef>ajuste_sx</flowNodeRef>
+        <flowNodeRef>espera_sx</flowNodeRef>
+      </lane>
+      <lane id="Carril_4" name="Operador de EW">
+        <flowNodeRef>g_electrolito</flowNodeRef>
+        <flowNodeRef>ajuste_ew</flowNodeRef>
+        <flowNodeRef>cosecha</flowNodeRef>
+        <flowNodeRef>despacho</flowNodeRef>
+      </lane>
+      <lane id="Carril_5" name="Laboratorio químico">
+        <flowNodeRef>analisis</flowNodeRef>
+        <flowNodeRef>calidad</flowNodeRef>
+        <flowNodeRef>g_calidad</flowNodeRef>
+      </lane>
+    </laneSet>
+    <startEvent id="inicio" name="Inicio de turno">
+      <outgoing>Flujo_1</outgoing>
+    </startEvent>
+    <userTask id="entrega" name="Recibir entrega de turno y novedades">
+      <incoming>Flujo_1</incoming>
+      <outgoing>Flujo_2</outgoing>
+    </userTask>
+    <manualTask id="riego" name="Verificar riego de pilas y caudal de PLS">
+      <incoming>Flujo_2</incoming>
+      <outgoing>Flujo_3</outgoing>
+    </manualTask>
+    <manualTask id="muestras" name="Tomar muestras de PLS, refino y electrolito">
+      <incoming>Flujo_3</incoming>
+      <incoming>Flujo_8</incoming>
+      <incoming>Flujo_11</incoming>
+      <outgoing>Flujo_4</outgoing>
+    </manualTask>
+    <task id="analisis" name="Analizar Cu, acidez libre, Fe y Mn">
+      <incoming>Flujo_4</incoming>
+      <outgoing>Flujo_5</outgoing>
+    </task>
+    <exclusiveGateway id="g_refino" name="¿Cu en refino dentro de rango?">
+      <incoming>Flujo_5</incoming>
+      <outgoing>Flujo_6</outgoing>
+      <outgoing>Flujo_9</outgoing>
+    </exclusiveGateway>
+    <manualTask id="ajuste_sx" name="Ajustar razón O/A y caudal de orgánico">
+      <incoming>Flujo_6</incoming>
+      <outgoing>Flujo_7</outgoing>
+    </manualTask>
+    <intermediateCatchEvent id="espera_sx" name="Esperar estabilización">
+      <incoming>Flujo_7</incoming>
+      <outgoing>Flujo_8</outgoing>
+      <timerEventDefinition id="Temporizador_espera_sx"/>
+    </intermediateCatchEvent>
+    <exclusiveGateway id="g_electrolito" name="¿Electrolito dentro de rango?">
+      <incoming>Flujo_9</incoming>
+      <outgoing>Flujo_10</outgoing>
+      <outgoing>Flujo_12</outgoing>
+    </exclusiveGateway>
+    <manualTask id="ajuste_ew" name="Ajustar descarte y aditivos">
+      <incoming>Flujo_10</incoming>
+      <outgoing>Flujo_11</outgoing>
+    </manualTask>
+    <manualTask id="cosecha" name="Cosechar cátodos según ciclo">
+      <incoming>Flujo_12</incoming>
+      <outgoing>Flujo_13</outgoing>
+    </manualTask>
+    <task id="calidad" name="Inspeccionar y muestrear cátodos">
+      <incoming>Flujo_13</incoming>
+      <outgoing>Flujo_14</outgoing>
+    </task>
+    <exclusiveGateway id="g_calidad" name="¿Cátodo cumple grado A?">
+      <incoming>Flujo_14</incoming>
+      <outgoing>Flujo_15</outgoing>
+      <outgoing>Flujo_16</outgoing>
+    </exclusiveGateway>
+    <userTask id="segregar" name="Segregar lote e informar desvío">
+      <incoming>Flujo_16</incoming>
+      <outgoing>Flujo_18</outgoing>
+    </userTask>
+    <manualTask id="despacho" name="Pesar, flejar y enviar a bodega">
+      <incoming>Flujo_15</incoming>
+      <outgoing>Flujo_17</outgoing>
+    </manualTask>
+    <userTask id="registro" name="Registrar indicadores del turno">
+      <incoming>Flujo_17</incoming>
+      <incoming>Flujo_18</incoming>
+      <outgoing>Flujo_19</outgoing>
+    </userTask>
+    <endEvent id="fin" name="Turno cerrado">
+      <incoming>Flujo_19</incoming>
+    </endEvent>
+    <sequenceFlow id="Flujo_1" sourceRef="inicio" targetRef="entrega"/>
+    <sequenceFlow id="Flujo_2" sourceRef="entrega" targetRef="riego"/>
+    <sequenceFlow id="Flujo_3" sourceRef="riego" targetRef="muestras"/>
+    <sequenceFlow id="Flujo_4" sourceRef="muestras" targetRef="analisis"/>
+    <sequenceFlow id="Flujo_5" sourceRef="analisis" targetRef="g_refino"/>
+    <sequenceFlow id="Flujo_6" sourceRef="g_refino" targetRef="ajuste_sx" name="No"/>
+    <sequenceFlow id="Flujo_7" sourceRef="ajuste_sx" targetRef="espera_sx"/>
+    <sequenceFlow id="Flujo_8" sourceRef="espera_sx" targetRef="muestras"/>
+    <sequenceFlow id="Flujo_9" sourceRef="g_refino" targetRef="g_electrolito" name="Sí"/>
+    <sequenceFlow id="Flujo_10" sourceRef="g_electrolito" targetRef="ajuste_ew" name="No"/>
+    <sequenceFlow id="Flujo_11" sourceRef="ajuste_ew" targetRef="muestras"/>
+    <sequenceFlow id="Flujo_12" sourceRef="g_electrolito" targetRef="cosecha" name="Sí"/>
+    <sequenceFlow id="Flujo_13" sourceRef="cosecha" targetRef="calidad"/>
+    <sequenceFlow id="Flujo_14" sourceRef="calidad" targetRef="g_calidad"/>
+    <sequenceFlow id="Flujo_15" sourceRef="g_calidad" targetRef="despacho" name="Sí"/>
+    <sequenceFlow id="Flujo_16" sourceRef="g_calidad" targetRef="segregar" name="No"/>
+    <sequenceFlow id="Flujo_17" sourceRef="despacho" targetRef="registro"/>
+    <sequenceFlow id="Flujo_18" sourceRef="segregar" targetRef="registro"/>
+    <sequenceFlow id="Flujo_19" sourceRef="registro" targetRef="fin"/>
+  </process>
+  <bpmndi:BPMNDiagram id="Diagrama_lx_sx_ew">
+    <bpmndi:BPMNPlane id="Plano_lx_sx_ew" bpmnElement="Colab_lx_sx_ew">
+      <bpmndi:BPMNShape id="Piscina_lx_sx_ew_di" bpmnElement="Piscina_lx_sx_ew" isHorizontal="true">
+        <dc:Bounds x="30" y="30" width="2220" height="720"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Carril_1_di" bpmnElement="Carril_1" isHorizontal="true">
+        <dc:Bounds x="60" y="30" width="2190" height="120"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Carril_2_di" bpmnElement="Carril_2" isHorizontal="true">
+        <dc:Bounds x="60" y="150" width="2190" height="120"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Carril_3_di" bpmnElement="Carril_3" isHorizontal="true">
+        <dc:Bounds x="60" y="270" width="2190" height="120"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Carril_4_di" bpmnElement="Carril_4" isHorizontal="true">
+        <dc:Bounds x="60" y="390" width="2190" height="240"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Carril_5_di" bpmnElement="Carril_5" isHorizontal="true">
+        <dc:Bounds x="60" y="630" width="2190" height="120"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="inicio_di" bpmnElement="inicio">
+        <dc:Bounds x="167" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="entrega_di" bpmnElement="entrega">
+        <dc:Bounds x="290" y="60" width="110" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="riego_di" bpmnElement="riego">
+        <dc:Bounds x="450" y="180" width="110" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="muestras_di" bpmnElement="muestras">
+        <dc:Bounds x="610" y="180" width="110" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="analisis_di" bpmnElement="analisis">
+        <dc:Bounds x="770" y="660" width="110" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="g_refino_di" bpmnElement="g_refino" isMarkerVisible="true">
+        <dc:Bounds x="960" y="305" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ajuste_sx_di" bpmnElement="ajuste_sx">
+        <dc:Bounds x="1090" y="300" width="110" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="espera_sx_di" bpmnElement="espera_sx">
+        <dc:Bounds x="1287" y="312" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="g_electrolito_di" bpmnElement="g_electrolito" isMarkerVisible="true">
+        <dc:Bounds x="1120" y="425" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="ajuste_ew_di" bpmnElement="ajuste_ew">
+        <dc:Bounds x="1250" y="420" width="110" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="cosecha_di" bpmnElement="cosecha">
+        <dc:Bounds x="1250" y="540" width="110" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="calidad_di" bpmnElement="calidad">
+        <dc:Bounds x="1410" y="660" width="110" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="g_calidad_di" bpmnElement="g_calidad" isMarkerVisible="true">
+        <dc:Bounds x="1600" y="665" width="50" height="50"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="segregar_di" bpmnElement="segregar">
+        <dc:Bounds x="1730" y="60" width="110" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="despacho_di" bpmnElement="despacho">
+        <dc:Bounds x="1730" y="420" width="110" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="registro_di" bpmnElement="registro">
+        <dc:Bounds x="1890" y="60" width="110" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="fin_di" bpmnElement="fin">
+        <dc:Bounds x="2087" y="72" width="36" height="36"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flujo_1_di" bpmnElement="Flujo_1">
+        <di:waypoint x="203" y="90"/>
+        <di:waypoint x="290" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_2_di" bpmnElement="Flujo_2">
+        <di:waypoint x="400" y="90"/>
+        <di:waypoint x="430" y="90"/>
+        <di:waypoint x="430" y="210"/>
+        <di:waypoint x="450" y="210"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_3_di" bpmnElement="Flujo_3">
+        <di:waypoint x="560" y="210"/>
+        <di:waypoint x="610" y="210"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_4_di" bpmnElement="Flujo_4">
+        <di:waypoint x="720" y="210"/>
+        <di:waypoint x="750" y="210"/>
+        <di:waypoint x="750" y="690"/>
+        <di:waypoint x="770" y="690"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_5_di" bpmnElement="Flujo_5">
+        <di:waypoint x="880" y="690"/>
+        <di:waypoint x="940" y="690"/>
+        <di:waypoint x="940" y="330"/>
+        <di:waypoint x="960" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_6_di" bpmnElement="Flujo_6">
+        <di:waypoint x="1010" y="330"/>
+        <di:waypoint x="1090" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_7_di" bpmnElement="Flujo_7">
+        <di:waypoint x="1200" y="330"/>
+        <di:waypoint x="1287" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_8_di" bpmnElement="Flujo_8">
+        <di:waypoint x="1323" y="330"/>
+        <di:waypoint x="1380" y="330"/>
+        <di:waypoint x="1380" y="164"/>
+        <di:waypoint x="580" y="164"/>
+        <di:waypoint x="580" y="210"/>
+        <di:waypoint x="610" y="210"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_9_di" bpmnElement="Flujo_9">
+        <di:waypoint x="985" y="355"/>
+        <di:waypoint x="985" y="450"/>
+        <di:waypoint x="1120" y="450"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_10_di" bpmnElement="Flujo_10">
+        <di:waypoint x="1170" y="450"/>
+        <di:waypoint x="1250" y="450"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_11_di" bpmnElement="Flujo_11">
+        <di:waypoint x="1360" y="450"/>
+        <di:waypoint x="1380" y="450"/>
+        <di:waypoint x="1380" y="164"/>
+        <di:waypoint x="580" y="164"/>
+        <di:waypoint x="580" y="210"/>
+        <di:waypoint x="610" y="210"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_12_di" bpmnElement="Flujo_12">
+        <di:waypoint x="1145" y="475"/>
+        <di:waypoint x="1145" y="570"/>
+        <di:waypoint x="1250" y="570"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_13_di" bpmnElement="Flujo_13">
+        <di:waypoint x="1360" y="570"/>
+        <di:waypoint x="1390" y="570"/>
+        <di:waypoint x="1390" y="690"/>
+        <di:waypoint x="1410" y="690"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_14_di" bpmnElement="Flujo_14">
+        <di:waypoint x="1520" y="690"/>
+        <di:waypoint x="1600" y="690"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_15_di" bpmnElement="Flujo_15">
+        <di:waypoint x="1625" y="665"/>
+        <di:waypoint x="1625" y="450"/>
+        <di:waypoint x="1730" y="450"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_16_di" bpmnElement="Flujo_16">
+        <di:waypoint x="1650" y="690"/>
+        <di:waypoint x="1710" y="690"/>
+        <di:waypoint x="1710" y="90"/>
+        <di:waypoint x="1730" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_17_di" bpmnElement="Flujo_17">
+        <di:waypoint x="1840" y="450"/>
+        <di:waypoint x="1870" y="450"/>
+        <di:waypoint x="1870" y="90"/>
+        <di:waypoint x="1890" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_18_di" bpmnElement="Flujo_18">
+        <di:waypoint x="1840" y="90"/>
+        <di:waypoint x="1890" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_19_di" bpmnElement="Flujo_19">
+        <di:waypoint x="2000" y="90"/>
+        <di:waypoint x="2087" y="90"/>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

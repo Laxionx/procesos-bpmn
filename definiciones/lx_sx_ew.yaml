@@ -1,0 +1,50 @@
+id: lx_sx_ew
+nombre: Control operacional de turno en una planta LX-SX-EW
+documentacion: >
+  Procedimiento genérico e ilustrativo del control de un turno en una planta de lixiviación,
+  extracción por solventes y electroobtención de cobre. No es el procedimiento de una empresa:
+  los rangos de control los fija cada planta.
+carriles:
+  - Supervisor de turno
+  - Operador de lixiviación
+  - Operador de SX
+  - Operador de EW
+  - Laboratorio químico
+nodos:
+  - {id: inicio, tipo: inicio, nombre: Inicio de turno, carril: Supervisor de turno}
+  - {id: entrega, tipo: tarea_usuario, nombre: Recibir entrega de turno y novedades, carril: Supervisor de turno}
+  - {id: riego, tipo: tarea_manual, nombre: Verificar riego de pilas y caudal de PLS, carril: Operador de lixiviación}
+  - {id: muestras, tipo: tarea_manual, nombre: "Tomar muestras de PLS, refino y electrolito", carril: Operador de lixiviación}
+  - {id: analisis, tipo: tarea, nombre: "Analizar Cu, acidez libre, Fe y Mn", carril: Laboratorio químico}
+  - {id: g_refino, tipo: decision, nombre: "¿Cu en refino dentro de rango?", carril: Operador de SX}
+  - {id: ajuste_sx, tipo: tarea_manual, nombre: Ajustar razón O/A y caudal de orgánico, carril: Operador de SX}
+  - {id: espera_sx, tipo: espera, nombre: Esperar estabilización, carril: Operador de SX}
+  - {id: g_electrolito, tipo: decision, nombre: "¿Electrolito dentro de rango?", carril: Operador de EW}
+  - {id: ajuste_ew, tipo: tarea_manual, nombre: Ajustar descarte y aditivos, carril: Operador de EW}
+  - {id: cosecha, tipo: tarea_manual, nombre: Cosechar cátodos según ciclo, carril: Operador de EW}
+  - {id: calidad, tipo: tarea, nombre: Inspeccionar y muestrear cátodos, carril: Laboratorio químico}
+  - {id: g_calidad, tipo: decision, nombre: "¿Cátodo cumple grado A?", carril: Laboratorio químico}
+  - {id: segregar, tipo: tarea_usuario, nombre: Segregar lote e informar desvío, carril: Supervisor de turno}
+  - {id: despacho, tipo: tarea_manual, nombre: "Pesar, flejar y enviar a bodega", carril: Operador de EW}
+  - {id: registro, tipo: tarea_usuario, nombre: Registrar indicadores del turno, carril: Supervisor de turno}
+  - {id: fin, tipo: fin, nombre: Turno cerrado, carril: Supervisor de turno}
+flujos:
+  - [inicio, entrega]
+  - [entrega, riego]
+  - [riego, muestras]
+  - [muestras, analisis]
+  - [analisis, g_refino]
+  - [g_refino, ajuste_sx, "No"]
+  - [ajuste_sx, espera_sx]
+  - [espera_sx, muestras]
+  - [g_refino, g_electrolito, "Sí"]
+  - [g_electrolito, ajuste_ew, "No"]
+  - [ajuste_ew, muestras]
+  - [g_electrolito, cosecha, "Sí"]
+  - [cosecha, calidad]
+  - [calidad, g_calidad]
+  - [g_calidad, despacho, "Sí"]
+  - [g_calidad, segregar, "No"]
+  - [despacho, registro]
+  - [segregar, registro]
+  - [registro, fin]

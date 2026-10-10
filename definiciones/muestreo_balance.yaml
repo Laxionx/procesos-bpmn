@@ -1,0 +1,50 @@
+id: muestreo_balance
+nombre: Muestreo de planta y balance metalúrgico
+documentacion: >
+  Procedimiento genérico e ilustrativo de una campaña de muestreo para cerrar el balance de un
+  circuito de molienda y clasificación. La reconciliación por mínimos cuadrados es la que
+  implementa el proyecto simulador-conminucion.
+carriles:
+  - Metalurgista
+  - Operador de planta
+  - Laboratorio
+nodos:
+  - {id: inicio, tipo: inicio, nombre: Campaña de muestreo programada, carril: Metalurgista}
+  - {id: plan, tipo: tarea_usuario, nombre: "Definir puntos, incrementos y masa mínima", carril: Metalurgista}
+  - {id: coordinar, tipo: tarea_usuario, nombre: Coordinar con operación y laboratorio, carril: Metalurgista}
+  - {id: g_estable, tipo: decision, nombre: "¿Planta estable al menos 1 h?", carril: Operador de planta}
+  - {id: esperar, tipo: espera, nombre: Esperar estabilidad, carril: Operador de planta}
+  - {id: tomar, tipo: tarea_manual, nombre: Tomar incrementos cada 15 min, carril: Operador de planta}
+  - {id: rotular, tipo: tarea_manual, nombre: "Componer, rotular y enviar muestras", carril: Operador de planta}
+  - {id: preparar, tipo: tarea, nombre: "Secar, dividir y preparar", carril: Laboratorio}
+  - {id: p_div, tipo: paralelo, nombre: Ensayos en paralelo, carril: Laboratorio}
+  - {id: granulometria, tipo: tarea, nombre: Granulometría, carril: Laboratorio}
+  - {id: quimica, tipo: tarea, nombre: Análisis químico, carril: Laboratorio}
+  - {id: p_union, tipo: paralelo, nombre: Resultados completos, carril: Laboratorio}
+  - {id: reconciliar, tipo: tarea_servicio, nombre: Reconciliar el balance por mínimos cuadrados, carril: Metalurgista}
+  - {id: g_ajustes, tipo: decision, nombre: "¿Ajustes dentro del error de muestreo?", carril: Metalurgista}
+  - {id: revisar, tipo: tarea_usuario, nombre: Revisar datos atípicos y repetir puntos, carril: Metalurgista}
+  - {id: calcular, tipo: tarea_servicio, nombre: Calcular recuperación y carga circulante, carril: Metalurgista}
+  - {id: informe, tipo: tarea_usuario, nombre: Emitir informe metalúrgico, carril: Metalurgista}
+  - {id: fin, tipo: fin, nombre: Balance cerrado, carril: Metalurgista}
+flujos:
+  - [inicio, plan]
+  - [plan, coordinar]
+  - [coordinar, g_estable]
+  - [g_estable, esperar, "No"]
+  - [esperar, g_estable]
+  - [g_estable, tomar, "Sí"]
+  - [tomar, rotular]
+  - [rotular, preparar]
+  - [preparar, p_div]
+  - [p_div, granulometria]
+  - [p_div, quimica]
+  - [granulometria, p_union]
+  - [quimica, p_union]
+  - [p_union, reconciliar]
+  - [reconciliar, g_ajustes]
+  - [g_ajustes, revisar, "No"]
+  - [revisar, tomar]
+  - [g_ajustes, calcular, "Sí"]
+  - [calcular, informe]
+  - [informe, fin]
