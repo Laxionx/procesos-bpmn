@@ -13,7 +13,7 @@ Cada procedimiento se escribe en un YAML corto. Un generador en Python lo convie
 |---|---|---|---|
 | Control operacional de turno en una planta LX-SX-EW | [`salidas/lx_sx_ew.bpmn`](salidas/lx_sx_ew.bpmn) | 5 | 17 |
 | Muestreo de planta y balance metalúrgico | [`salidas/muestreo_balance.bpmn`](salidas/muestreo_balance.bpmn) | 3 | 18 |
-| Fabricación de bolas de molienda fundidas | [`salidas/bolas_molienda.bpmn`](salidas/bolas_molienda.bpmn) | 5 | 17 |
+| Fabricación de bolas de molienda de alto cromo en coquilla | [`salidas/bolas_molienda.bpmn`](salidas/bolas_molienda.bpmn) | 5 | 24 |
 
 ### Control de turno LX-SX-EW
 ![LX-SX-EW](docs/img/lx_sx_ew.svg)
@@ -23,7 +23,9 @@ La reconciliación por mínimos cuadrados de este procedimiento es la que implem
 
 ![Muestreo y balance](docs/img/muestreo_balance.svg)
 
-### Bolas de molienda fundidas
+### Bolas de molienda de alto cromo en coquilla
+La secuencia se revisó con la experiencia práctica del autor en fundición. Las coquillas se limpian y precalientan **en paralelo** con la fusión, y el control final del lote (dureza y ensayo de caída) está a cargo de calidad. No incluye parámetros ni reproduce el procedimiento de ninguna empresa.
+
 ![Bolas de molienda](docs/img/bolas_molienda.svg)
 
 Las imágenes son vistas previas con las mismas coordenadas que el BPMNDI del archivo. Bizagi dibuja con su propio estilo.

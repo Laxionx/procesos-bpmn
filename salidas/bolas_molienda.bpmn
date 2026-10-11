@@ -1,25 +1,32 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definiciones_bolas_molienda" targetNamespace="urn:procesos-bpmn:bolas_molienda" exporter="procesos-bpmn" exporterVersion="0.1.0">
   <collaboration id="Colab_bolas_molienda">
-    <participant id="Piscina_bolas_molienda" name="Fabricación de bolas de molienda fundidas" processRef="Proceso_bolas_molienda"/>
+    <participant id="Piscina_bolas_molienda" name="Fabricación de bolas de molienda de alto cromo en coquilla" processRef="Proceso_bolas_molienda"/>
   </collaboration>
-  <process id="Proceso_bolas_molienda" name="Fabricación de bolas de molienda fundidas" isExecutable="false">
-    <documentation>Procedimiento genérico e ilustrativo de la fabricación de bolas de molienda de fundición: fusión, colada, tratamiento térmico y control de calidad. No es el procedimiento de una empresa: las especificaciones de química, dureza y ensayo de caída las fija cada fabricante y cliente.</documentation>
+  <process id="Proceso_bolas_molienda" name="Fabricación de bolas de molienda de alto cromo en coquilla" isExecutable="false">
+    <documentation>Procedimiento genérico e ilustrativo de la fabricación de bolas de molienda de fundición blanca de alto cromo coladas en coquilla. La secuencia de pasos se revisó con la experiencia práctica del autor en fundición. No reproduce el procedimiento de ninguna empresa ni incluye parámetros: la química, las temperaturas, las durezas y el ensayo de caída los fija cada fabricante y cliente. Las coquillas se preparan mientras se funde el metal; el control final del lote lo hace el área de calidad.</documentation>
     <laneSet id="Carriles_bolas_molienda">
       <lane id="Carril_1" name="Fusión">
         <flowNodeRef>inicio</flowNodeRef>
+        <flowNodeRef>p_div</flowNodeRef>
         <flowNodeRef>carga</flowNodeRef>
         <flowNodeRef>fundir</flowNodeRef>
         <flowNodeRef>corregir</flowNodeRef>
         <flowNodeRef>rechazo</flowNodeRef>
         <flowNodeRef>fin_rechazo</flowNodeRef>
       </lane>
-      <lane id="Carril_2" name="Moldeo y colada">
+      <lane id="Carril_2" name="Moldeo en coquilla">
+        <flowNodeRef>limpiar</flowNodeRef>
+        <flowNodeRef>precalentar</flowNodeRef>
+        <flowNodeRef>p_union</flowNodeRef>
         <flowNodeRef>colar</flowNodeRef>
-        <flowNodeRef>desmoldar</flowNodeRef>
+        <flowNodeRef>extraer</flowNodeRef>
+        <flowNodeRef>separar</flowNodeRef>
+        <flowNodeRef>clasificar</flowNodeRef>
       </lane>
       <lane id="Carril_3" name="Tratamiento térmico">
-        <flowNodeRef>temple</flowNodeRef>
+        <flowNodeRef>templar</flowNodeRef>
+        <flowNodeRef>revenir</flowNodeRef>
         <flowNodeRef>g_retratar</flowNodeRef>
       </lane>
       <lane id="Carril_4" name="Control de calidad">
@@ -37,255 +44,347 @@
     <startEvent id="inicio" name="Orden de producción">
       <outgoing>Flujo_1</outgoing>
     </startEvent>
-    <manualTask id="carga" name="Preparar carga: chatarra y ferroaleaciones">
+    <parallelGateway id="p_div" name="Fusión y coquillas en paralelo">
       <incoming>Flujo_1</incoming>
       <outgoing>Flujo_2</outgoing>
+      <outgoing>Flujo_3</outgoing>
+    </parallelGateway>
+    <manualTask id="carga" name="Preparar carga: chatarra y ferroaleaciones">
+      <incoming>Flujo_2</incoming>
+      <outgoing>Flujo_4</outgoing>
     </manualTask>
     <manualTask id="fundir" name="Fundir en horno de inducción">
-      <incoming>Flujo_2</incoming>
-      <outgoing>Flujo_3</outgoing>
-    </manualTask>
-    <task id="espectro" name="Análisis por espectrometría de emisión">
-      <incoming>Flujo_3</incoming>
-      <incoming>Flujo_6</incoming>
-      <outgoing>Flujo_4</outgoing>
-    </task>
-    <exclusiveGateway id="g_quimica" name="¿Química en especificación?">
       <incoming>Flujo_4</incoming>
       <outgoing>Flujo_5</outgoing>
+    </manualTask>
+    <task id="espectro" name="Análisis por espectrometría de emisión">
+      <incoming>Flujo_5</incoming>
+      <incoming>Flujo_8</incoming>
+      <outgoing>Flujo_6</outgoing>
+    </task>
+    <exclusiveGateway id="g_quimica" name="¿Química en especificación?">
+      <incoming>Flujo_6</incoming>
       <outgoing>Flujo_7</outgoing>
+      <outgoing>Flujo_9</outgoing>
     </exclusiveGateway>
     <manualTask id="corregir" name="Corregir con ferroaleaciones">
-      <incoming>Flujo_5</incoming>
-      <outgoing>Flujo_6</outgoing>
-    </manualTask>
-    <manualTask id="colar" name="Colar en moldes">
       <incoming>Flujo_7</incoming>
       <outgoing>Flujo_8</outgoing>
     </manualTask>
-    <manualTask id="desmoldar" name="Desmoldar y limpiar">
-      <incoming>Flujo_8</incoming>
-      <outgoing>Flujo_9</outgoing>
-    </manualTask>
-    <manualTask id="temple" name="Templar y revenir">
-      <incoming>Flujo_9</incoming>
-      <incoming>Flujo_14</incoming>
+    <manualTask id="limpiar" name="Limpiar coquillas">
+      <incoming>Flujo_3</incoming>
       <outgoing>Flujo_10</outgoing>
     </manualTask>
-    <task id="dureza" name="Medir dureza en superficie y núcleo">
+    <manualTask id="precalentar" name="Precalentar coquillas">
       <incoming>Flujo_10</incoming>
       <outgoing>Flujo_11</outgoing>
-    </task>
-    <exclusiveGateway id="g_dureza" name="¿Dureza en especificación?">
+    </manualTask>
+    <parallelGateway id="p_union" name="Metal y coquillas listos">
+      <incoming>Flujo_9</incoming>
       <incoming>Flujo_11</incoming>
       <outgoing>Flujo_12</outgoing>
+    </parallelGateway>
+    <manualTask id="colar" name="Colar en coquillas">
+      <incoming>Flujo_12</incoming>
       <outgoing>Flujo_13</outgoing>
-    </exclusiveGateway>
-    <exclusiveGateway id="g_retratar" name="¿Se puede volver a tratar?">
+    </manualTask>
+    <manualTask id="extraer" name="Abrir coquillas y extraer">
       <incoming>Flujo_13</incoming>
       <outgoing>Flujo_14</outgoing>
+    </manualTask>
+    <manualTask id="separar" name="Separar bolas y rebarbar">
+      <incoming>Flujo_14</incoming>
       <outgoing>Flujo_15</outgoing>
-    </exclusiveGateway>
-    <manualTask id="rechazo" name="Devolver como chatarra de retorno">
+    </manualTask>
+    <manualTask id="clasificar" name="Clasificar por diámetro">
       <incoming>Flujo_15</incoming>
       <outgoing>Flujo_16</outgoing>
     </manualTask>
-    <endEvent id="fin_rechazo" name="Lote rechazado">
+    <manualTask id="templar" name="Templar">
       <incoming>Flujo_16</incoming>
-    </endEvent>
-    <task id="caida" name="Ensayo de caída por lote">
-      <incoming>Flujo_12</incoming>
+      <incoming>Flujo_22</incoming>
       <outgoing>Flujo_17</outgoing>
-    </task>
-    <manualTask id="despacho" name="Embalar y despachar">
+    </manualTask>
+    <manualTask id="revenir" name="Revenir">
       <incoming>Flujo_17</incoming>
       <outgoing>Flujo_18</outgoing>
     </manualTask>
-    <endEvent id="fin" name="Lote despachado">
+    <task id="dureza" name="Medir dureza en superficie y núcleo">
       <incoming>Flujo_18</incoming>
+      <outgoing>Flujo_19</outgoing>
+    </task>
+    <exclusiveGateway id="g_dureza" name="¿Dureza en especificación?">
+      <incoming>Flujo_19</incoming>
+      <outgoing>Flujo_20</outgoing>
+      <outgoing>Flujo_21</outgoing>
+    </exclusiveGateway>
+    <exclusiveGateway id="g_retratar" name="¿Se puede volver a tratar?">
+      <incoming>Flujo_21</incoming>
+      <outgoing>Flujo_22</outgoing>
+      <outgoing>Flujo_23</outgoing>
+    </exclusiveGateway>
+    <manualTask id="rechazo" name="Devolver como chatarra de retorno">
+      <incoming>Flujo_23</incoming>
+      <outgoing>Flujo_24</outgoing>
+    </manualTask>
+    <endEvent id="fin_rechazo" name="Lote rechazado">
+      <incoming>Flujo_24</incoming>
     </endEvent>
-    <sequenceFlow id="Flujo_1" sourceRef="inicio" targetRef="carga"/>
-    <sequenceFlow id="Flujo_2" sourceRef="carga" targetRef="fundir"/>
-    <sequenceFlow id="Flujo_3" sourceRef="fundir" targetRef="espectro"/>
-    <sequenceFlow id="Flujo_4" sourceRef="espectro" targetRef="g_quimica"/>
-    <sequenceFlow id="Flujo_5" sourceRef="g_quimica" targetRef="corregir" name="No"/>
-    <sequenceFlow id="Flujo_6" sourceRef="corregir" targetRef="espectro"/>
-    <sequenceFlow id="Flujo_7" sourceRef="g_quimica" targetRef="colar" name="Sí"/>
-    <sequenceFlow id="Flujo_8" sourceRef="colar" targetRef="desmoldar"/>
-    <sequenceFlow id="Flujo_9" sourceRef="desmoldar" targetRef="temple"/>
-    <sequenceFlow id="Flujo_10" sourceRef="temple" targetRef="dureza"/>
-    <sequenceFlow id="Flujo_11" sourceRef="dureza" targetRef="g_dureza"/>
-    <sequenceFlow id="Flujo_12" sourceRef="g_dureza" targetRef="caida" name="Sí"/>
-    <sequenceFlow id="Flujo_13" sourceRef="g_dureza" targetRef="g_retratar" name="No"/>
-    <sequenceFlow id="Flujo_14" sourceRef="g_retratar" targetRef="temple" name="Sí"/>
-    <sequenceFlow id="Flujo_15" sourceRef="g_retratar" targetRef="rechazo" name="No"/>
-    <sequenceFlow id="Flujo_16" sourceRef="rechazo" targetRef="fin_rechazo"/>
-    <sequenceFlow id="Flujo_17" sourceRef="caida" targetRef="despacho"/>
-    <sequenceFlow id="Flujo_18" sourceRef="despacho" targetRef="fin"/>
+    <task id="caida" name="Ensayo de caída por lote">
+      <incoming>Flujo_20</incoming>
+      <outgoing>Flujo_25</outgoing>
+    </task>
+    <manualTask id="despacho" name="Embalar y despachar">
+      <incoming>Flujo_25</incoming>
+      <outgoing>Flujo_26</outgoing>
+    </manualTask>
+    <endEvent id="fin" name="Lote despachado">
+      <incoming>Flujo_26</incoming>
+    </endEvent>
+    <sequenceFlow id="Flujo_1" sourceRef="inicio" targetRef="p_div"/>
+    <sequenceFlow id="Flujo_2" sourceRef="p_div" targetRef="carga"/>
+    <sequenceFlow id="Flujo_3" sourceRef="p_div" targetRef="limpiar"/>
+    <sequenceFlow id="Flujo_4" sourceRef="carga" targetRef="fundir"/>
+    <sequenceFlow id="Flujo_5" sourceRef="fundir" targetRef="espectro"/>
+    <sequenceFlow id="Flujo_6" sourceRef="espectro" targetRef="g_quimica"/>
+    <sequenceFlow id="Flujo_7" sourceRef="g_quimica" targetRef="corregir" name="No"/>
+    <sequenceFlow id="Flujo_8" sourceRef="corregir" targetRef="espectro"/>
+    <sequenceFlow id="Flujo_9" sourceRef="g_quimica" targetRef="p_union" name="Sí"/>
+    <sequenceFlow id="Flujo_10" sourceRef="limpiar" targetRef="precalentar"/>
+    <sequenceFlow id="Flujo_11" sourceRef="precalentar" targetRef="p_union"/>
+    <sequenceFlow id="Flujo_12" sourceRef="p_union" targetRef="colar"/>
+    <sequenceFlow id="Flujo_13" sourceRef="colar" targetRef="extraer"/>
+    <sequenceFlow id="Flujo_14" sourceRef="extraer" targetRef="separar"/>
+    <sequenceFlow id="Flujo_15" sourceRef="separar" targetRef="clasificar"/>
+    <sequenceFlow id="Flujo_16" sourceRef="clasificar" targetRef="templar"/>
+    <sequenceFlow id="Flujo_17" sourceRef="templar" targetRef="revenir"/>
+    <sequenceFlow id="Flujo_18" sourceRef="revenir" targetRef="dureza"/>
+    <sequenceFlow id="Flujo_19" sourceRef="dureza" targetRef="g_dureza"/>
+    <sequenceFlow id="Flujo_20" sourceRef="g_dureza" targetRef="caida" name="Sí"/>
+    <sequenceFlow id="Flujo_21" sourceRef="g_dureza" targetRef="g_retratar" name="No"/>
+    <sequenceFlow id="Flujo_22" sourceRef="g_retratar" targetRef="templar" name="Sí"/>
+    <sequenceFlow id="Flujo_23" sourceRef="g_retratar" targetRef="rechazo" name="No"/>
+    <sequenceFlow id="Flujo_24" sourceRef="rechazo" targetRef="fin_rechazo"/>
+    <sequenceFlow id="Flujo_25" sourceRef="caida" targetRef="despacho"/>
+    <sequenceFlow id="Flujo_26" sourceRef="despacho" targetRef="fin"/>
   </process>
   <bpmndi:BPMNDiagram id="Diagrama_bolas_molienda">
     <bpmndi:BPMNPlane id="Plano_bolas_molienda" bpmnElement="Colab_bolas_molienda">
       <bpmndi:BPMNShape id="Piscina_bolas_molienda_di" bpmnElement="Piscina_bolas_molienda" isHorizontal="true">
-        <dc:Bounds x="30" y="30" width="2220" height="600"/>
+        <dc:Bounds x="30" y="30" width="3020" height="600"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Carril_1_di" bpmnElement="Carril_1" isHorizontal="true">
-        <dc:Bounds x="60" y="30" width="2190" height="120"/>
+        <dc:Bounds x="60" y="30" width="2990" height="120"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Carril_2_di" bpmnElement="Carril_2" isHorizontal="true">
-        <dc:Bounds x="60" y="150" width="2190" height="120"/>
+        <dc:Bounds x="60" y="150" width="2990" height="120"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Carril_3_di" bpmnElement="Carril_3" isHorizontal="true">
-        <dc:Bounds x="60" y="270" width="2190" height="120"/>
+        <dc:Bounds x="60" y="270" width="2990" height="120"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Carril_4_di" bpmnElement="Carril_4" isHorizontal="true">
-        <dc:Bounds x="60" y="390" width="2190" height="120"/>
+        <dc:Bounds x="60" y="390" width="2990" height="120"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="Carril_5_di" bpmnElement="Carril_5" isHorizontal="true">
-        <dc:Bounds x="60" y="510" width="2190" height="120"/>
+        <dc:Bounds x="60" y="510" width="2990" height="120"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="inicio_di" bpmnElement="inicio">
         <dc:Bounds x="167" y="72" width="36" height="36"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="carga_di" bpmnElement="carga">
-        <dc:Bounds x="290" y="60" width="110" height="60"/>
+      <bpmndi:BPMNShape id="p_div_di" bpmnElement="p_div">
+        <dc:Bounds x="320" y="65" width="50" height="50"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="fundir_di" bpmnElement="fundir">
+      <bpmndi:BPMNShape id="carga_di" bpmnElement="carga">
         <dc:Bounds x="450" y="60" width="110" height="60"/>
       </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="fundir_di" bpmnElement="fundir">
+        <dc:Bounds x="610" y="60" width="110" height="60"/>
+      </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="espectro_di" bpmnElement="espectro">
-        <dc:Bounds x="610" y="420" width="110" height="60"/>
+        <dc:Bounds x="770" y="420" width="110" height="60"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="g_quimica_di" bpmnElement="g_quimica" isMarkerVisible="true">
-        <dc:Bounds x="800" y="425" width="50" height="50"/>
+        <dc:Bounds x="960" y="425" width="50" height="50"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="corregir_di" bpmnElement="corregir">
-        <dc:Bounds x="930" y="60" width="110" height="60"/>
+        <dc:Bounds x="1090" y="60" width="110" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="limpiar_di" bpmnElement="limpiar">
+        <dc:Bounds x="450" y="180" width="110" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="precalentar_di" bpmnElement="precalentar">
+        <dc:Bounds x="610" y="180" width="110" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="p_union_di" bpmnElement="p_union">
+        <dc:Bounds x="1120" y="185" width="50" height="50"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="colar_di" bpmnElement="colar">
-        <dc:Bounds x="930" y="180" width="110" height="60"/>
+        <dc:Bounds x="1250" y="180" width="110" height="60"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="desmoldar_di" bpmnElement="desmoldar">
-        <dc:Bounds x="1090" y="180" width="110" height="60"/>
+      <bpmndi:BPMNShape id="extraer_di" bpmnElement="extraer">
+        <dc:Bounds x="1410" y="180" width="110" height="60"/>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="temple_di" bpmnElement="temple">
-        <dc:Bounds x="1250" y="300" width="110" height="60"/>
+      <bpmndi:BPMNShape id="separar_di" bpmnElement="separar">
+        <dc:Bounds x="1570" y="180" width="110" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="clasificar_di" bpmnElement="clasificar">
+        <dc:Bounds x="1730" y="180" width="110" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="templar_di" bpmnElement="templar">
+        <dc:Bounds x="1890" y="300" width="110" height="60"/>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="revenir_di" bpmnElement="revenir">
+        <dc:Bounds x="2050" y="300" width="110" height="60"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="dureza_di" bpmnElement="dureza">
-        <dc:Bounds x="1410" y="420" width="110" height="60"/>
+        <dc:Bounds x="2210" y="420" width="110" height="60"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="g_dureza_di" bpmnElement="g_dureza" isMarkerVisible="true">
-        <dc:Bounds x="1600" y="425" width="50" height="50"/>
+        <dc:Bounds x="2400" y="425" width="50" height="50"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="g_retratar_di" bpmnElement="g_retratar" isMarkerVisible="true">
-        <dc:Bounds x="1760" y="305" width="50" height="50"/>
+        <dc:Bounds x="2560" y="305" width="50" height="50"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="rechazo_di" bpmnElement="rechazo">
-        <dc:Bounds x="1890" y="60" width="110" height="60"/>
+        <dc:Bounds x="2690" y="60" width="110" height="60"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="fin_rechazo_di" bpmnElement="fin_rechazo">
-        <dc:Bounds x="2087" y="72" width="36" height="36"/>
+        <dc:Bounds x="2887" y="72" width="36" height="36"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="caida_di" bpmnElement="caida">
-        <dc:Bounds x="1730" y="420" width="110" height="60"/>
+        <dc:Bounds x="2530" y="420" width="110" height="60"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="despacho_di" bpmnElement="despacho">
-        <dc:Bounds x="1890" y="540" width="110" height="60"/>
+        <dc:Bounds x="2690" y="540" width="110" height="60"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNShape id="fin_di" bpmnElement="fin">
-        <dc:Bounds x="2087" y="552" width="36" height="36"/>
+        <dc:Bounds x="2887" y="552" width="36" height="36"/>
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Flujo_1_di" bpmnElement="Flujo_1">
         <di:waypoint x="203" y="90"/>
-        <di:waypoint x="290" y="90"/>
+        <di:waypoint x="320" y="90"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flujo_2_di" bpmnElement="Flujo_2">
-        <di:waypoint x="400" y="90"/>
+        <di:waypoint x="370" y="90"/>
         <di:waypoint x="450" y="90"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flujo_3_di" bpmnElement="Flujo_3">
-        <di:waypoint x="560" y="90"/>
-        <di:waypoint x="590" y="90"/>
-        <di:waypoint x="590" y="450"/>
-        <di:waypoint x="610" y="450"/>
+        <di:waypoint x="345" y="115"/>
+        <di:waypoint x="345" y="210"/>
+        <di:waypoint x="450" y="210"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flujo_4_di" bpmnElement="Flujo_4">
-        <di:waypoint x="720" y="450"/>
-        <di:waypoint x="800" y="450"/>
+        <di:waypoint x="560" y="90"/>
+        <di:waypoint x="610" y="90"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flujo_5_di" bpmnElement="Flujo_5">
-        <di:waypoint x="850" y="450"/>
-        <di:waypoint x="910" y="450"/>
-        <di:waypoint x="910" y="90"/>
-        <di:waypoint x="930" y="90"/>
+        <di:waypoint x="720" y="90"/>
+        <di:waypoint x="750" y="90"/>
+        <di:waypoint x="750" y="450"/>
+        <di:waypoint x="770" y="450"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flujo_6_di" bpmnElement="Flujo_6">
-        <di:waypoint x="1040" y="90"/>
-        <di:waypoint x="1060" y="90"/>
-        <di:waypoint x="1060" y="44"/>
-        <di:waypoint x="580" y="44"/>
-        <di:waypoint x="580" y="450"/>
-        <di:waypoint x="610" y="450"/>
+        <di:waypoint x="880" y="450"/>
+        <di:waypoint x="960" y="450"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flujo_7_di" bpmnElement="Flujo_7">
-        <di:waypoint x="825" y="425"/>
-        <di:waypoint x="825" y="210"/>
-        <di:waypoint x="930" y="210"/>
+        <di:waypoint x="1010" y="450"/>
+        <di:waypoint x="1070" y="450"/>
+        <di:waypoint x="1070" y="90"/>
+        <di:waypoint x="1090" y="90"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flujo_8_di" bpmnElement="Flujo_8">
-        <di:waypoint x="1040" y="210"/>
-        <di:waypoint x="1090" y="210"/>
+        <di:waypoint x="1200" y="90"/>
+        <di:waypoint x="1220" y="90"/>
+        <di:waypoint x="1220" y="44"/>
+        <di:waypoint x="740" y="44"/>
+        <di:waypoint x="740" y="450"/>
+        <di:waypoint x="770" y="450"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flujo_9_di" bpmnElement="Flujo_9">
-        <di:waypoint x="1200" y="210"/>
-        <di:waypoint x="1230" y="210"/>
-        <di:waypoint x="1230" y="330"/>
-        <di:waypoint x="1250" y="330"/>
+        <di:waypoint x="985" y="425"/>
+        <di:waypoint x="985" y="210"/>
+        <di:waypoint x="1120" y="210"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flujo_10_di" bpmnElement="Flujo_10">
-        <di:waypoint x="1360" y="330"/>
-        <di:waypoint x="1390" y="330"/>
-        <di:waypoint x="1390" y="450"/>
-        <di:waypoint x="1410" y="450"/>
+        <di:waypoint x="560" y="210"/>
+        <di:waypoint x="610" y="210"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flujo_11_di" bpmnElement="Flujo_11">
-        <di:waypoint x="1520" y="450"/>
-        <di:waypoint x="1600" y="450"/>
+        <di:waypoint x="720" y="210"/>
+        <di:waypoint x="1120" y="210"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flujo_12_di" bpmnElement="Flujo_12">
-        <di:waypoint x="1650" y="450"/>
-        <di:waypoint x="1730" y="450"/>
+        <di:waypoint x="1170" y="210"/>
+        <di:waypoint x="1250" y="210"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flujo_13_di" bpmnElement="Flujo_13">
-        <di:waypoint x="1625" y="425"/>
-        <di:waypoint x="1625" y="330"/>
-        <di:waypoint x="1760" y="330"/>
+        <di:waypoint x="1360" y="210"/>
+        <di:waypoint x="1410" y="210"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flujo_14_di" bpmnElement="Flujo_14">
-        <di:waypoint x="1810" y="330"/>
-        <di:waypoint x="1860" y="330"/>
-        <di:waypoint x="1860" y="284"/>
-        <di:waypoint x="1220" y="284"/>
-        <di:waypoint x="1220" y="330"/>
-        <di:waypoint x="1250" y="330"/>
+        <di:waypoint x="1520" y="210"/>
+        <di:waypoint x="1570" y="210"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flujo_15_di" bpmnElement="Flujo_15">
-        <di:waypoint x="1785" y="305"/>
-        <di:waypoint x="1785" y="90"/>
-        <di:waypoint x="1890" y="90"/>
+        <di:waypoint x="1680" y="210"/>
+        <di:waypoint x="1730" y="210"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flujo_16_di" bpmnElement="Flujo_16">
-        <di:waypoint x="2000" y="90"/>
-        <di:waypoint x="2087" y="90"/>
+        <di:waypoint x="1840" y="210"/>
+        <di:waypoint x="1870" y="210"/>
+        <di:waypoint x="1870" y="330"/>
+        <di:waypoint x="1890" y="330"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flujo_17_di" bpmnElement="Flujo_17">
-        <di:waypoint x="1840" y="450"/>
-        <di:waypoint x="1870" y="450"/>
-        <di:waypoint x="1870" y="570"/>
-        <di:waypoint x="1890" y="570"/>
+        <di:waypoint x="2000" y="330"/>
+        <di:waypoint x="2050" y="330"/>
       </bpmndi:BPMNEdge>
       <bpmndi:BPMNEdge id="Flujo_18_di" bpmnElement="Flujo_18">
-        <di:waypoint x="2000" y="570"/>
-        <di:waypoint x="2087" y="570"/>
+        <di:waypoint x="2160" y="330"/>
+        <di:waypoint x="2190" y="330"/>
+        <di:waypoint x="2190" y="450"/>
+        <di:waypoint x="2210" y="450"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_19_di" bpmnElement="Flujo_19">
+        <di:waypoint x="2320" y="450"/>
+        <di:waypoint x="2400" y="450"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_20_di" bpmnElement="Flujo_20">
+        <di:waypoint x="2450" y="450"/>
+        <di:waypoint x="2530" y="450"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_21_di" bpmnElement="Flujo_21">
+        <di:waypoint x="2425" y="425"/>
+        <di:waypoint x="2425" y="330"/>
+        <di:waypoint x="2560" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_22_di" bpmnElement="Flujo_22">
+        <di:waypoint x="2610" y="330"/>
+        <di:waypoint x="2660" y="330"/>
+        <di:waypoint x="2660" y="284"/>
+        <di:waypoint x="1860" y="284"/>
+        <di:waypoint x="1860" y="330"/>
+        <di:waypoint x="1890" y="330"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_23_di" bpmnElement="Flujo_23">
+        <di:waypoint x="2585" y="305"/>
+        <di:waypoint x="2585" y="90"/>
+        <di:waypoint x="2690" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_24_di" bpmnElement="Flujo_24">
+        <di:waypoint x="2800" y="90"/>
+        <di:waypoint x="2887" y="90"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_25_di" bpmnElement="Flujo_25">
+        <di:waypoint x="2640" y="450"/>
+        <di:waypoint x="2670" y="450"/>
+        <di:waypoint x="2670" y="570"/>
+        <di:waypoint x="2690" y="570"/>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flujo_26_di" bpmnElement="Flujo_26">
+        <di:waypoint x="2800" y="570"/>
+        <di:waypoint x="2887" y="570"/>
       </bpmndi:BPMNEdge>
     </bpmndi:BPMNPlane>
   </bpmndi:BPMNDiagram>

@@ -1,25 +1,35 @@
 id: bolas_molienda
-nombre: Fabricación de bolas de molienda fundidas
+nombre: Fabricación de bolas de molienda de alto cromo en coquilla
 documentacion: >
-  Procedimiento genérico e ilustrativo de la fabricación de bolas de molienda de fundición:
-  fusión, colada, tratamiento térmico y control de calidad. No es el procedimiento de una empresa:
-  las especificaciones de química, dureza y ensayo de caída las fija cada fabricante y cliente.
+  Procedimiento genérico e ilustrativo de la fabricación de bolas de molienda de fundición blanca
+  de alto cromo coladas en coquilla. La secuencia de pasos se revisó con la experiencia práctica
+  del autor en fundición. No reproduce el procedimiento de ninguna empresa ni incluye parámetros:
+  la química, las temperaturas, las durezas y el ensayo de caída los fija cada fabricante y cliente.
+  Las coquillas se preparan mientras se funde el metal; el control final del lote lo hace el área
+  de calidad.
 carriles:
   - Fusión
-  - Moldeo y colada
+  - Moldeo en coquilla
   - Tratamiento térmico
   - Control de calidad
   - Despacho
 nodos:
   - {id: inicio, tipo: inicio, nombre: Orden de producción, carril: Fusión}
+  - {id: p_div, tipo: paralelo, nombre: Fusión y coquillas en paralelo, carril: Fusión}
   - {id: carga, tipo: tarea_manual, nombre: "Preparar carga: chatarra y ferroaleaciones", carril: Fusión}
   - {id: fundir, tipo: tarea_manual, nombre: Fundir en horno de inducción, carril: Fusión}
   - {id: espectro, tipo: tarea, nombre: Análisis por espectrometría de emisión, carril: Control de calidad}
   - {id: g_quimica, tipo: decision, nombre: "¿Química en especificación?", carril: Control de calidad}
   - {id: corregir, tipo: tarea_manual, nombre: Corregir con ferroaleaciones, carril: Fusión}
-  - {id: colar, tipo: tarea_manual, nombre: Colar en moldes, carril: Moldeo y colada}
-  - {id: desmoldar, tipo: tarea_manual, nombre: Desmoldar y limpiar, carril: Moldeo y colada}
-  - {id: temple, tipo: tarea_manual, nombre: Templar y revenir, carril: Tratamiento térmico}
+  - {id: limpiar, tipo: tarea_manual, nombre: Limpiar coquillas, carril: Moldeo en coquilla}
+  - {id: precalentar, tipo: tarea_manual, nombre: Precalentar coquillas, carril: Moldeo en coquilla}
+  - {id: p_union, tipo: paralelo, nombre: Metal y coquillas listos, carril: Moldeo en coquilla}
+  - {id: colar, tipo: tarea_manual, nombre: Colar en coquillas, carril: Moldeo en coquilla}
+  - {id: extraer, tipo: tarea_manual, nombre: Abrir coquillas y extraer, carril: Moldeo en coquilla}
+  - {id: separar, tipo: tarea_manual, nombre: Separar bolas y rebarbar, carril: Moldeo en coquilla}
+  - {id: clasificar, tipo: tarea_manual, nombre: Clasificar por diámetro, carril: Moldeo en coquilla}
+  - {id: templar, tipo: tarea_manual, nombre: Templar, carril: Tratamiento térmico}
+  - {id: revenir, tipo: tarea_manual, nombre: Revenir, carril: Tratamiento térmico}
   - {id: dureza, tipo: tarea, nombre: Medir dureza en superficie y núcleo, carril: Control de calidad}
   - {id: g_dureza, tipo: decision, nombre: "¿Dureza en especificación?", carril: Control de calidad}
   - {id: g_retratar, tipo: decision, nombre: "¿Se puede volver a tratar?", carril: Tratamiento térmico}
@@ -29,20 +39,28 @@ nodos:
   - {id: despacho, tipo: tarea_manual, nombre: Embalar y despachar, carril: Despacho}
   - {id: fin, tipo: fin, nombre: Lote despachado, carril: Despacho}
 flujos:
-  - [inicio, carga]
+  - [inicio, p_div]
+  - [p_div, carga]
+  - [p_div, limpiar]
   - [carga, fundir]
   - [fundir, espectro]
   - [espectro, g_quimica]
   - [g_quimica, corregir, "No"]
   - [corregir, espectro]
-  - [g_quimica, colar, "Sí"]
-  - [colar, desmoldar]
-  - [desmoldar, temple]
-  - [temple, dureza]
+  - [g_quimica, p_union, "Sí"]
+  - [limpiar, precalentar]
+  - [precalentar, p_union]
+  - [p_union, colar]
+  - [colar, extraer]
+  - [extraer, separar]
+  - [separar, clasificar]
+  - [clasificar, templar]
+  - [templar, revenir]
+  - [revenir, dureza]
   - [dureza, g_dureza]
   - [g_dureza, caida, "Sí"]
   - [g_dureza, g_retratar, "No"]
-  - [g_retratar, temple, "Sí"]
+  - [g_retratar, templar, "Sí"]
   - [g_retratar, rechazo, "No"]
   - [rechazo, fin_rechazo]
   - [caida, despacho]
