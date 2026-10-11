@@ -99,13 +99,15 @@ nombre: Prueba
 carriles: [Rol]
 nodos:
   - {id: i, tipo: inicio, nombre: I, carril: Rol}
+  - {id: m, tipo: decision, nombre: "", carril: Rol}
   - {id: g, tipo: decision, nombre: "¿Bien?", carril: Rol}
   - {id: t, tipo: tarea, nombre: T, carril: Rol}
   - {id: f, tipo: fin, nombre: F, carril: Rol}
 flujos:
-  - [i, g]
+  - [i, m]
+  - [m, g]
   - [g, t, "No"]
-  - [t, g]
+  - [t, m]
   - [g, f, "Sí"]
 """
 
@@ -120,9 +122,10 @@ def test_base_de_mutaciones_es_valida():
     [
         ('[g, f, "Sí"]', "[t, t]", "fin"),  # el fin queda sin llegada
         ('[g, t, "No"]', "[g, t]", "nombre"),
-        ("  - [i, g]\n", "  - [i, g]\n  - [t, i]\n", "inicio"),
-        ("  - [i, g]\n", "  - [i, g]\n  - [i, g]\n", "repetidos"),
-        ("  - [t, g]\n", "", "fin"),  # t no tiene salida ni camino a un fin
+        ("  - [i, m]\n", "  - [i, m]\n  - [t, i]\n", "inicio"),
+        ("  - [i, m]\n", "  - [i, m]\n  - [i, m]\n", "repetidos"),
+        ("  - [t, m]\n", "", "fin"),  # t no tiene salida ni camino a un fin
+        ("  - [t, m]\n", "  - [t, g]\n", "combinar"),  # vuelta directa a la decisión (Bizagi)
     ],
 )
 def test_reglas_de_modelado_pueden_fallar(old, new, message):
@@ -133,10 +136,10 @@ def test_reglas_de_modelado_pueden_fallar(old, new, message):
 @pytest.mark.parametrize(
     ("old", "new", "message"),
     [
-        ("carril: Rol}\n  - {id: g", "carril: Otro}\n  - {id: g", "carril"),
+        ("carril: Rol}\n  - {id: m", "carril: Otro}\n  - {id: m", "carril"),
         ("{id: t, tipo: tarea", "{id: t, tipo: subproceso", "tipo"),
         ("{id: t,", "{id: 9t,", "id"),
-        ("[t, g]", "[t, x]", "no existe"),
+        ("[t, m]", "[t, x]", "no existe"),
         ("{id: f,", "{id: g,", "repetidos"),
     ],
 )

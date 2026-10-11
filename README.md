@@ -12,7 +12,7 @@ Cada procedimiento se escribe en un YAML corto. Un generador en Python lo convie
 | Procedimiento | Archivo | Carriles | Nodos |
 |---|---|---|---|
 | Control operacional de turno en una planta LX-SX-EW | [`salidas/lx_sx_ew.bpmn`](salidas/lx_sx_ew.bpmn) | 5 | 17 |
-| Muestreo de planta y balance metalúrgico | [`salidas/muestreo_balance.bpmn`](salidas/muestreo_balance.bpmn) | 3 | 18 |
+| Muestreo de planta y balance metalúrgico | [`salidas/muestreo_balance.bpmn`](salidas/muestreo_balance.bpmn) | 3 | 19 |
 | Fabricación de bolas de molienda de alto cromo en coquilla | [`salidas/bolas_molienda.bpmn`](salidas/bolas_molienda.bpmn) | 5 | 24 |
 
 ### Control de turno LX-SX-EW
@@ -32,7 +32,9 @@ Las imágenes son vistas previas con las mismas coordenadas que el BPMNDI del ar
 
 ## Abrir en Bizagi Modeler
 
-Bizagi Modeler importa archivos BPMN 2.0 (`.bpmn`). **Pendiente:** no se probó aquí, porque Bizagi no está instalado en la máquina donde se generaron. Lo que sí está comprobado es que cada archivo cumple el esquema oficial de la OMG (ver abajo).
+Los tres archivos se importaron en **Bizagi Modeler 4.3** y su validador no reporta errores, advertencias ni sugerencias.
+
+Se importan desde la pestaña **Exportar/Importar → Importar → BPMN**. «Archivo → Abrir» solo lee el formato propio de Bizagi (`.bpm`) y rechaza los `.bpmn` como «invalid or corrupt».
 
 ## Uso
 
@@ -74,25 +76,28 @@ flujos:
 
 ## Validación
 
-Los criterios se fijaron antes de correr (`tests/test_bpmn.py`, 36 pruebas, cobertura del 96 %).
+Los criterios se fijaron antes de correr (`tests/test_bpmn.py`, 37 pruebas, cobertura del 96 %).
 
 | Control | Qué comprueba |
 |---|---|
 | XSD oficial de la OMG | Los 3 archivos validan contra BPMN 2.0 (formal/2011-01-03). Un archivo roto a propósito (un flujo sin destino) es rechazado. |
-| Reglas de modelado | Hay inicio y fin. Todo nodo es alcanzable desde el inicio y tiene camino a un fin. Las salidas de cada decisión tienen nombre. No hay flujos repetidos. |
+| Reglas de modelado | Hay inicio y fin. Todo nodo es alcanzable desde el inicio y tiene camino a un fin. Las salidas de cada decisión tienen nombre. Una compuerta divide o combina, nunca ambas cosas. No hay flujos repetidos. |
 | Dibujo | Las formas no se solapan y quedan dentro de su carril. Las flechas son ortogonales, salen y llegan al borde de sus formas, no atraviesan otras formas, y dos salidas del mismo origen no se superponen. |
 | Consistencia del XML | Hay una forma por piscina, carril y nodo, y una arista por flujo. Los carriles reparten los nodos sin repetir. Incoming y outgoing cuadran. |
 | Archivos publicados | Los `.bpmn` de `salidas/` coinciden byte a byte con lo que genera su YAML. |
 
-Para comprobar que las pruebas pueden fallar, se metieron 6 errores a propósito y todos se detectaron:
+Para comprobar que las pruebas pueden fallar, se metieron 7 errores a propósito y todos se detectaron:
 - compuertas sin salida lateral;
 - vueltas que entran por arriba;
 - nodos sin `incoming`;
 - carriles vacíos;
 - nodos apilados en la misma fila;
-- decisiones sin nombre.
+- decisiones sin nombre;
+- una vuelta que entra directo a una decisión (compuerta mixta).
 
 **Hallazgo del propio proceso:** la primera versión del trazado cumplía todas las reglas, pero la vista previa mostró que una vuelta atravesaba una forma. De ahí salió la regla «no atraviesa otras formas». Esa regla detectó un segundo caso, en el muestreo, que se corrigió haciendo bajar las vueltas por el pasillo entre columnas.
+
+**Hallazgo de Bizagi:** al guardar, su validador marcó que la decisión «¿Planta estable al menos 1 h?» del muestreo recibía la vuelta de «Esperar estabilidad» y a la vez repartía el flujo, lo que la hacía una compuerta mixta. Ni el XSD ni bpmn.io lo detectan, porque es una regla de buen modelado y no de formato. Se corrigió con una compuerta de unión antes de la decisión, y la regla quedó en `validar.py` con su prueba.
 
 ## Límites
 

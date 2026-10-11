@@ -12,6 +12,7 @@ nodos:
   - {id: inicio, tipo: inicio, nombre: Campaña de muestreo programada, carril: Metalurgista}
   - {id: plan, tipo: tarea_usuario, nombre: "Definir puntos, incrementos y masa mínima", carril: Metalurgista}
   - {id: coordinar, tipo: tarea_usuario, nombre: Coordinar con operación y laboratorio, carril: Metalurgista}
+  - {id: g_union, tipo: decision, nombre: "", carril: Operador de planta}
   - {id: g_estable, tipo: decision, nombre: "¿Planta estable al menos 1 h?", carril: Operador de planta}
   - {id: esperar, tipo: espera, nombre: Esperar estabilidad, carril: Operador de planta}
   - {id: tomar, tipo: tarea_manual, nombre: Tomar incrementos cada 15 min, carril: Operador de planta}
@@ -30,9 +31,10 @@ nodos:
 flujos:
   - [inicio, plan]
   - [plan, coordinar]
-  - [coordinar, g_estable]
+  - [coordinar, g_union]
+  - [g_union, g_estable]
   - [g_estable, esperar, "No"]
-  - [esperar, g_estable]
+  - [esperar, g_union]
   - [g_estable, tomar, "Sí"]
   - [tomar, rotular]
   - [rotular, preparar]

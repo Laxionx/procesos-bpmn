@@ -43,6 +43,8 @@ def problemas(proc: Procedimiento) -> list[str]:
             errores.append(f"{n.id}: no le llega ningún flujo")
         if n.tipo != "fin" and not salen[n.id]:
             errores.append(f"{n.id}: no sale ningún flujo")
+        if n.tipo in ("decision", "paralelo") and len(entran[n.id]) > 1 and len(salen[n.id]) > 1:
+            errores.append(f"{n.id}: una compuerta debe dividir o combinar, no ambas cosas")
         if n.tipo == "decision" and len(salen[n.id]) > 1:
             sin_nombre = [f.destino for f in proc.flujos if f.origen == n.id and not f.nombre]
             if sin_nombre:
